@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nodejs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: nodejs
+  name: nodejs-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-app
+  template:
+    metadata:
+      labels:
+        app: nodejs-app
+    spec:
+      containers:
+      - name: nodejs-app-container
+        image: vuninh/nodejs-prometheus-metrics-demo:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 250m
+            memory: 256Mi
+          requests:
+            cpu: 150m
+            memory: 128Mi
+        ports:
+        - containerPort: 8080
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: nodejs
+  name: nodejs-app-service
+  labels:
+    app: nodejs-app
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  type: NodePort
+  selector:
+    app: nodejs-app
+
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  namespace: nodejs
+#  name: nodejs-alb
+#  annotations:
+#    alb.ingress.kubernetes.io/load-balancer-name: nodejs-demo-alb
+#    alb.ingress.kubernetes.io/scheme: internet-facing
+#    alb.ingress.kubernetes.io/target-type: ip
+#    alb.ingress.kubernetes.io/subnets: subnet-03a63b4296815cbcd,subnet-06adb666437effe71,subnet-0adb98ef6cd6cf30d
+#    alb.ingress.kubernetes.io/tags: Environment=staging,Component=stg-nodejs-demo,Service=stg-nodejs
+#    #alb.ingress.kubernetes.io/security-groups: sg-01eb2ba4344df4697,sg-06e975c167cb42141,sg-0baa41dedac55d354
+#spec:
+#  ingressClassName: alb
+#  rules:
+#    - http:
+#        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: nodejs-service
+#                port:
+#                  number: 80
+#

@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nodejs-monitor
+  # Change this to the namespace the Prometheus instance is running in
+  namespace: nodejs
+  labels:
+    app: nodejs-app
+spec:
+  endpoints:
+  - path: /metrics
+    interval: 15s
+    scheme: http
+  namespaceSelector:
+    matchNames:
+    - nodejs
+  selector:
+    matchLabels:
+      app: nodejs-app

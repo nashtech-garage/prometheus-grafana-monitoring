@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: nodejs-app
+    severity: critical
+    namespace: nodejs
+  name: nodejs-monitoring-rules 
+spec:  
+  groups:
+  - name: "nodejs-monitoring-rules" 
+    rules:
+    - alert: Nodejs App 404 Errors
+      labels:
+        severity: critical
+        namespace: nodejs
+      for: 10s  
+      expr: sum(increase(http_request_duration_seconds_count{code=~"4.*"}[1m])) >= 10 
+      annotations:
+        summary: "Pod {{$labels.instance}} with metric over threshold"
+        description: "Alert from {{$labels.namespace}}/{{$labels.name}} has failed to evaluate value: {{ $value }} in the last 5m."

@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/name: sample-app
+    severity: critical
+    namespace: nginx
+  name: sample-app-monitoring-rules 
+spec:
+  groups:
+  - name: "sample_app_http_requests_total_per_minute" 
+    rules:
+    - alert: SampleApp HTTP Requests Total Per Minute
+      labels:
+        severity: critical
+        namespace: nginx
+      for: 10s  
+      expr: rate(http_requests_total{}[1m]) >= 20
+      annotations:
+        summary: "Pod {{$labels.instance}} with metric over threshold"
+        description: "Alert from {{$labels.namespace}}/{{$labels.name}} has failed to evaluate value: {{ $value }} over threshold in the last 5m."
